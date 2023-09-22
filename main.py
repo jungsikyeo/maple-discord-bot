@@ -1,6 +1,13 @@
+import os
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory=os.getenv("STATIC_FOLDER")), name="static")
 
 
 @app.get("/")
