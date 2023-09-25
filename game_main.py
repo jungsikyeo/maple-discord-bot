@@ -61,7 +61,7 @@ async def game_end(ctx):
     global game_playing
     if game_playing:
         embed = make_embed({
-            'title': 'End Game',
+            'title': '** 게임 종료 **',
             'description': '게임이 종료되었습니다.',
             'color': EMBED_JOIN,
         })
@@ -69,9 +69,9 @@ async def game_end(ctx):
         await reset()
 
 
-def monster_hp_gauge(current_hp, max_hp):
+def monster_hp_gauge(current_hp, max_hp, hp_gauge_cnt=10):
     hp_percentage = current_hp / max_hp
-    hp_gauge = "█" * int(hp_percentage * 10) + "▒" * (10 - int(hp_percentage * 10))
+    hp_gauge = "█" * int(hp_percentage * hp_gauge_cnt) + "▒" * (hp_gauge_cnt - int(hp_percentage * hp_gauge_cnt))
     return hp_gauge
 
 
@@ -105,7 +105,7 @@ class JoinGameView(View):
             for player in participating_players:
                 if player.id == interaction.user.id:
                     embed = make_embed({
-                        'title': 'Join Game',
+                        'title': '** 파티원 모집 **',
                         'description': f"**{interaction.user.name}**님은 이미 파티원입니다.",
                         'thumbnail_image': f"http://130.162.153.236:9180/static/join_1.png?v={now_in_milliseconds}",
                         'color': EMBED_JOIN,
@@ -116,7 +116,7 @@ class JoinGameView(View):
             # 참여자 100명 초과 시 참전 불가
             if len(participating_players) >= 100:
                 embed = make_embed({
-                    'title': 'Join Game',
+                    'title': '** 파티원 모집 **',
                     'description': f"파티원 구성이 마감되었습니다.",
                     'thumbnail_image': 'http://130.162.153.236:9180/static/join_1.png?v={now_in_milliseconds}',
                     'color': EMBED_JOIN,
@@ -126,7 +126,7 @@ class JoinGameView(View):
             # 참여자 등록
             participating_players.add(Player(interaction.user))
             embed = make_embed({
-                'title': 'Join Game',
+                'title': '** 파티원 모집 **',
                 'description': f"**{interaction.user.name}**님이 파티에 가입하였습니다.",
                 'thumbnail_image': 'http://130.162.153.236:9180/static/join_1.png?v={now_in_milliseconds}',
                 'color': EMBED_JOIN,
@@ -154,10 +154,37 @@ async def reset():
 async def stop(ctx):
     global game_playing
     if game_playing:
-        await ctx.send(content="예기치 못한 오류가 발생되어 게임을 중지합니다. 이번 라운드의 모든 행위는 기록되지 않습니다.")
+        embed = make_embed({
+            'title': '!! 경고 !!',
+            'description': "예기치 못한 오류가 발생되어 게임을 중지합니다. 이번 라운드의 모든 행위는 기록되지 않습니다.",
+            'color': EMBED_ERROR,
+        })
+        await ctx.send(embed=embed)
         await asyncio.sleep(2)
-        await ctx.send(content="게임이 종료되었습니다.")
+        embed = make_embed({
+            'title': '** 게임 종료 **',
+            'description': "게임이 종료되었습니다.",
+            'color': EMBED_JOIN,
+        })
+        await ctx.send(embed=embed)
         await reset()
+
+
+def seconds_to_hms(seconds):
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    s = seconds % 60
+    return format_hms(h, m, s)
+
+
+def format_hms(hours, minutes, secs):
+    parts = []
+    if hours:
+        parts.append(f"{int(hours)}시간")
+    if minutes:
+        parts.append(f"{int(minutes)}분")
+    parts.append(f"{int(secs)}초")
+    return ' '.join(parts)
 
 
 # 게임 클래스 생성
@@ -170,14 +197,14 @@ async def mudstart(ctx):
         now_in_seconds = time.time()
         now_in_milliseconds = int(now_in_seconds * 1000)
 
-        if ctx.message.author.guild_permissions.administrator:  # 사용자가 관리자 권한을 가지고 있는지 확인
+        if True:  # 사용자가 관리자 권한을 가지고 있는지 확인
             global game_playing, participating_players, game
 
             participating_players.clear()
 
             if game_playing:
                 embed = make_embed({
-                    'title': 'Start Failed',
+                    'title': '!! 경고 !!',
                     'description': "이미 게임이 진행중입니다.",
                     'color': EMBED_ERROR,
                 })
@@ -190,8 +217,8 @@ async def mudstart(ctx):
             game_playing = True
 
             embed = make_embed({
-                'title': 'Join Game',
-                'description': f"{int(JOIN_TIMEOUT)}분 동안 파티원을 모집합니다! 아래 버튼을 클릭하여 게임에 참여해주세요.",
+                'title': '** 파티원 모집 **',
+                'description': f"{seconds_to_hms(JOIN_TIMEOUT)} 동안 파티원을 모집합니다! 아래 버튼을 클릭하여 게임에 참여해주세요.",
                 'thumbnail_image': f"http://130.162.153.236:9180/static/join_2.png?v={now_in_milliseconds}",
                 'color': EMBED_JOIN,
             })
@@ -201,7 +228,7 @@ async def mudstart(ctx):
             await asyncio.sleep(JOIN_TIMEOUT)
 
             embed = make_embed({
-                'title': 'Join Game',
+                'title': '** 파티원 모집 **',
                 'description': f"파티원 모집이 종료되었습니다.\n파티원 인원: {len(participating_players)}",
                 'thumbnail_image': f"http://130.162.153.236:9180/static/join_2.png?v={now_in_milliseconds}",
                 'color': EMBED_JOIN,
@@ -214,7 +241,7 @@ async def mudstart(ctx):
             else:
                 game_playing = False
                 embed = make_embed({
-                    'title': 'Start Failed',
+                    'title': '!! 경고 !!',
                     'description': "파티원이 구성되지 않았습니다.",
                     'thumbnail_image': f"http://130.162.153.236:9180/static/join_2.png?v={now_in_milliseconds}",
                     'color': EMBED_ERROR,
@@ -225,7 +252,7 @@ async def mudstart(ctx):
 
             # 게임 시작 알림
             embed = make_embed({
-                'title': 'Start Game',
+                'title': '** 게임 시작 **',
                 'description': "잠시 후 몬스터들이 출몰합니다. 파티원들은 준비해주세요!",
                 'thumbnail_image': f"http://130.162.153.236:9180/static/join_2.png?v={now_in_milliseconds}",
                 'color': EMBED_JOIN,
@@ -236,7 +263,7 @@ async def mudstart(ctx):
             await game.spawn_monster(ctx.channel)
         else:
             embed = make_embed({
-                'title': 'Start Failed',
+                'title': '!! 경고 !!',
                 'description': "관리자만 사용가능합니다.",
                 'color': EMBED_ERROR,
             })
@@ -248,7 +275,7 @@ async def mudstart(ctx):
 
 
 @bot.slash_command(
-    name="attack",
+    name="attack-test",
     description="Player - Attack Monster",
     guild_ids=guild_ids
 )
@@ -262,7 +289,7 @@ async def attack(ctx):
         # 사용자가 최근에 공격한 시간이 기록되어 있고, 그로부터 3초 이내인 경우
         if user_id in last_attack_time and now - last_attack_time[user_id] < 3:
             embed = make_embed({
-                'title': 'Wait Seconds',
+                'title': '!! 경고 !!',
                 'description': "3초 이내에는 입력할 수 없습니다. 잠시후 시도해주세요.",
                 'color': EMBED_ERROR,
             })
@@ -300,11 +327,16 @@ async def attack(ctx):
                         if current_player.defense_mode:
                             await ctx.respond(content="방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
                             current_player.defense_mode = False
-                        hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp)
-                        await ctx.respond(content=f"**{game.current_monster.name}**에게 공격 성공! \n"
-                                                  f"HP [{hp_gauge}]({game.current_monster.current_hp}/{game.current_monster.max_hp})",
-                                          ephemeral=True
-                                          )
+                        if isinstance(game.current_monster, BossMonster):
+                            hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp, 20)
+                            await ctx.respond(content=f":attack_4: | **{game.current_monster.name}**에게 공격 성공! \n"
+                                                      f"HP [{hp_gauge}]",
+                                              ephemeral=True)
+                        else:
+                            hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp)
+                            await ctx.respond(content=f"**{game.current_monster.name}**에게 공격 성공! \n"
+                                                      f"HP [{hp_gauge}]({game.current_monster.current_hp}/{game.current_monster.max_hp})",
+                                              ephemeral=True)
                 else:
                     await ctx.respond(content="공격 대상이 없습니다.", ephemeral=True)
             else:
@@ -317,7 +349,7 @@ async def attack(ctx):
 
 
 @bot.slash_command(
-    name="skill",
+    name="skill-test",
     description="Player - Magic Attack Monster",
     guild_ids=guild_ids
 )
@@ -363,7 +395,7 @@ async def skill(ctx):
                         await ctx.respond(content=f"**{game.current_monster.name}**이(가) 죽었습니다.",
                                           ephemeral=True)
                         await ctx.respond(
-                            content=f"**{ctx.author.name}**이(가) **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**를 처치했다! \n"
+                            content=f"**{ctx.author.name}**이(가) **{game.current_monster.name}**를 처치했다! \n"
                                     f"**{ctx.author.name}**의 누적 데미지 **{current_player.accumulated_damage}**")
                         if isinstance(game.current_monster, BossMonster):
                             await game_end(ctx)
@@ -374,7 +406,7 @@ async def skill(ctx):
                             await ctx.respond(content="방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
                         hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp)
                         await ctx.respond(
-                            content=f"{critical_msg} **{ctx.author.name}**가 **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**에게 공격 성공! \n"
+                            content=f":skill_4: | {critical_msg} **{ctx.author.name}**가 **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**에게 공격 성공! \n"
                                     f"HP [{hp_gauge}]({game.current_monster.current_hp}/{game.current_monster.max_hp})",
                             ephemeral=True
                         )
@@ -390,7 +422,7 @@ async def skill(ctx):
 
 
 @bot.slash_command(
-    name="defense",
+    name="defense-test",
     description="Player - Defense",
     guild_ids=guild_ids
 )

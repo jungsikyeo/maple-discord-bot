@@ -31,18 +31,24 @@ class BossMonster:
                 await channel.send(embed=embed)
                 await self.game_end(channel)
                 return
+            else:
+                await asyncio.sleep(random.randint(BOSS_ATTACK_DELAY_START, BOSS_ATTACK_DELAY_END))  # 공격 대기
             attack_type = random.choices(
                 [BOSS_ATTACK_NORMAL, BOSS_ATTACK_AOE],
                 weights=[BOSS_ATTACK_PERCENT_NORMAL, BOSS_ATTACK_PERCENT_AOE],
                 k=1
             )[0]
-            hp_gauge = self.monster_hp_gauge(self.current_hp, self.max_hp)
+            if attack_type == BOSS_ATTACK_NORMAL:
+                target_msg = "누군가를 노려보고 있습니다!"
+            else:
+                target_msg = "무언가를 준비하고 있습니다!"
+            hp_gauge = self.monster_hp_gauge(self.current_hp, self.max_hp, 20)
             embed = self.make_embed({
                 'title': '경고!',
                 'description': f"```diff\n"
-                               f"-{self.name}이(가) {attack_type}을(를) 준비합니다."
+                               f"-{self.name}이(가) {target_msg}"
                                f"```\n"
-                               f"HP [{hp_gauge}]({self.current_hp}/{self.max_hp})",
+                               f"HP [{hp_gauge}]",
                 'color': EMBED_HUNT,
             })
             await channel.send(embed=embed)
@@ -53,12 +59,12 @@ class BossMonster:
         if attack_type == BOSS_ATTACK_NORMAL:
             target = random.choice(players)
             normal_attack = random.choice(self.normal_attacks)
-            description = f"**{self.name}**이(가) **{target.name}**에게 공격을 시도합니다.\n"
+            description = f":attack_1: | **{self.name}**이(가) **{target.name}**에게 공격을 시도합니다.\n"
             if target.defense_mode:
-                description += f"**{target.name}**은(는) **{self.name}**의 **{normal_attack}**을(를) 회피하였습니다."
+                description += f":defense_1: | **{target.name}**은(는) **{self.name}**의 **{normal_attack}**을(를) 회피하였습니다."
                 target.defense_mode = False
             else:
-                description += f"**{self.name}**이(가) **{target.name}**에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
+                description += f":attack_2: | **{self.name}**이(가) **{target.name}**에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
                 target.hp = 0  # 플레이어 사망
             embed = self.make_embed({
                 'description': description,
@@ -68,7 +74,6 @@ class BossMonster:
         elif attack_type == BOSS_ATTACK_AOE:
             targets = random.sample(players, min(5, len(players)))
             magic_attack = random.choice(self.magic_attacks)
-            # target_names = ", ".join([f"**{target.name}**" for target in targets])
             target_alive_names = ""
             target_die_names = ""
             for target in targets:
@@ -78,17 +83,18 @@ class BossMonster:
                 else:
                     target_die_names += f"{target.name}, "
                     target.hp = 0  # 플레이어 사망
-            description = f"**{self.name}**이(가) 광역 공격 **{magic_attack}**을 시전합니다.\n"
+            description = f":skill_2: | **{self.name}**이(가) 광역 스킬 **{magic_attack}**을 시전합니다.\n"
             if target_die_names:
-                description += f"**{self.name}**의 **{magic_attack}** 광역 공격으로 {target_die_names[:-2]}이(가) 사망하였습니다.\n"
+                description += f":attack_2: | **{self.name}**의 **{magic_attack}** 광역 공격으로 {target_die_names[:-2]}이(가) 사망하였습니다.\n"
             if target_alive_names:
-                description += f"**{target_alive_names[:-2]}**은(는) **{self.name}**의 **{magic_attack}** 광역 공격을 회피하였습니다."
+                description += f":defense_1: | **{target_alive_names[:-2]}**은(는) **{self.name}**의 **{magic_attack}** 광역 공격을 회피하였습니다."
             embed = self.make_embed({
+                'title': f"{magic_attack}",
                 'description': description,
                 'color': EMBED_HUNT,
             })
             await channel.send(embed=embed)
-        await asyncio.sleep(random.randint(BOSS_ATTACK_DELAY_START, BOSS_ATTACK_DELAY_END))  # 공격 대기
+
 
     def is_alive(self):
         return self.current_hp > 0

@@ -28,8 +28,8 @@ class MonsterHunt:
             self.current_monster = NormalMonster(player_cnt)
             hp_gauge = self.monster_hp_gauge(self.current_monster.current_hp, self.current_monster.max_hp)
             embed = self.make_embed({
-                'title': f"**{self.current_monster.name}**",
-                'description': f"일반 몬스터 **{self.current_monster.name}**이(가) 나타났다! \n"
+                'title': f"**__Round {self.spawn_count + 1}__**",
+                'description': f"**{self.current_monster.name}**이(가) 나타났다! \n"
                                f"HP [{hp_gauge}]({self.current_monster.current_hp}/{self.current_monster.max_hp})",
                 'thumbnail_image': f"http://130.162.153.236:9180/static/normal_{self.current_monster.id}.png?v={now_in_milliseconds}",
                 'color': EMBED_HUNT,
@@ -39,11 +39,11 @@ class MonsterHunt:
         elif self.spawn_count == self.total_spawns:
             await asyncio.sleep(random.randint(BOSS_SPAWN_DELAY_START, BOSS_SPAWN_DELAY_END))
             self.current_monster = BossMonster(player_cnt, self.get_alive_players, self.game_end, self.monster_hp_gauge, self.make_embed)
-            hp_gauge = self.monster_hp_gauge(self.current_monster.current_hp, self.current_monster.max_hp)
+            hp_gauge = self.monster_hp_gauge(self.current_monster.current_hp, self.current_monster.max_hp, 20)
             embed = self.make_embed({
-                'title': f"**{self.current_monster.name}**",
-                'description': f"보스 몬스터 **{self.current_monster.name}**이(가) 나타났다! \n"
-                               f"HP [{hp_gauge}]({self.current_monster.current_hp}/{self.current_monster.max_hp})",
+                'title': f"**__FINAL ROUND__**",
+                'description': f"### **{self.current_monster.name}**이(가) 나타났다! \n"
+                               f"HP [{hp_gauge}]",
                 'main_image': f"http://130.162.153.236:9180/static/boss_{self.current_monster.id}.png?v={now_in_milliseconds}",
                 'color': EMBED_HUNT,
             })
