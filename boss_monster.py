@@ -59,12 +59,12 @@ class BossMonster:
         if attack_type == BOSS_ATTACK_NORMAL:
             target = random.choice(players)
             normal_attack = random.choice(self.normal_attacks)
-            description = f":attack_1: | **{self.name}**이(가) **{target.name}**에게 공격을 시도합니다.\n"
+            description = f"<:attack_1:1155149010550657124> | **{self.name}**이(가) **{target.name}**에게 공격을 시도합니다.\n"
             if target.defense_mode:
-                description += f":defense_1: | **{target.name}**은(는) **{self.name}**의 **{normal_attack}**을(를) 회피하였습니다."
+                description += f"<:defense_1:1155844018639482950> | **{target.name}**은(는) **{self.name}**의 **{normal_attack}**을(를) 회피하였습니다."
                 target.defense_mode = False
             else:
-                description += f":attack_2: | **{self.name}**이(가) **{target.name}**에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
+                description += f"<:attack_2:1155149012501020692> | **{self.name}**이(가) **{target.name}**에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
                 target.hp = 0  # 플레이어 사망
             embed = self.make_embed({
                 'description': description,
@@ -83,11 +83,11 @@ class BossMonster:
                 else:
                     target_die_names += f"{target.name}, "
                     target.hp = 0  # 플레이어 사망
-            description = f":skill_2: | **{self.name}**이(가) 광역 스킬 **{magic_attack}**을 시전합니다.\n"
+            description = f"<:skill_2:1155149046923661433> | **{self.name}**이(가) 광역 스킬 **{magic_attack}**을 시전합니다.\n"
             if target_die_names:
-                description += f":attack_2: | **{self.name}**의 **{magic_attack}** 광역 공격으로 {target_die_names[:-2]}이(가) 사망하였습니다.\n"
+                description += f"<:attack_2:1155149012501020692> | **{self.name}**의 **{magic_attack}** 광역 공격으로 {target_die_names[:-2]}이(가) 사망하였습니다.\n"
             if target_alive_names:
-                description += f":defense_1: | **{target_alive_names[:-2]}**은(는) **{self.name}**의 **{magic_attack}** 광역 공격을 회피하였습니다."
+                description += f"<:defense_1:1155844018639482950> | **{target_alive_names[:-2]}**은(는) **{self.name}**의 **{magic_attack}** 광역 공격을 회피하였습니다."
             embed = self.make_embed({
                 'title': f"{magic_attack}",
                 'description': description,

@@ -329,7 +329,7 @@ async def attack(ctx):
                             current_player.defense_mode = False
                         if isinstance(game.current_monster, BossMonster):
                             hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp, 20)
-                            await ctx.respond(content=f":attack_4: | **{game.current_monster.name}**에게 공격 성공! \n"
+                            await ctx.respond(content=f"<:attack_4:1155149021447458907> | **{game.current_monster.name}**에게 공격 성공! \n"
                                                       f"HP [{hp_gauge}]",
                                               ephemeral=True)
                         else:
@@ -406,7 +406,7 @@ async def skill(ctx):
                             await ctx.respond(content="방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
                         hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp)
                         await ctx.respond(
-                            content=f":skill_4: | {critical_msg} **{ctx.author.name}**가 **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**에게 공격 성공! \n"
+                            content=f"<:skill_4:1155149051759710261> | {critical_msg} **{ctx.author.name}**가 **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**에게 공격 성공! \n"
                                     f"HP [{hp_gauge}]({game.current_monster.current_hp}/{game.current_monster.max_hp})",
                             ephemeral=True
                         )
