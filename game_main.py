@@ -23,6 +23,9 @@ bot_token = os.getenv("BOT_TOKEN")
 command_flag = os.getenv("SEARCHFI_BOT_FLAG")
 bot = commands.Bot(command_prefix=command_flag, intents=discord.Intents.all())
 
+attack_command = os.getenv("ATTACK_COMMAND")
+skill_command = os.getenv("SKILL_COMMAND")
+defense_command = os.getenv("DEFENSE_COMMAND")
 guild_ids = [1069466891367751691]
 magic_skills = [fireball, icebolt, lightning, earthquake, windblade]
 
@@ -275,7 +278,7 @@ async def mudstart(ctx):
 
 
 @bot.slash_command(
-    name="attack",
+    name=attack_command,
     description="Player - Attack Monster",
     guild_ids=guild_ids
 )
@@ -349,7 +352,7 @@ async def attack(ctx):
 
 
 @bot.slash_command(
-    name="skill",
+    name=skill_command,
     description="Player - Magic Attack Monster",
     guild_ids=guild_ids
 )
@@ -422,7 +425,7 @@ async def skill(ctx):
 
 
 @bot.slash_command(
-    name="defense",
+    name=defense_command,
     description="Player - Defense",
     guild_ids=guild_ids
 )
