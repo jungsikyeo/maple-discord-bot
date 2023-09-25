@@ -275,7 +275,7 @@ async def mudstart(ctx):
 
 
 @bot.slash_command(
-    name="attack-test",
+    name="attack",
     description="Player - Attack Monster",
     guild_ids=guild_ids
 )
@@ -349,7 +349,7 @@ async def attack(ctx):
 
 
 @bot.slash_command(
-    name="skill-test",
+    name="skill",
     description="Player - Magic Attack Monster",
     guild_ids=guild_ids
 )
@@ -422,7 +422,7 @@ async def skill(ctx):
 
 
 @bot.slash_command(
-    name="defense-test",
+    name="defense",
     description="Player - Defense",
     guild_ids=guild_ids
 )
