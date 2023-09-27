@@ -6,7 +6,7 @@ from constants import EMBED_HUNT
 
 
 class BossMonster:
-    def __init__(self, player_cnt, get_alive_players, game_end, monster_hp_gauge, make_embed, game_playing):
+    def __init__(self, player_cnt, get_alive_players, game_end, monster_hp_gauge, make_embed, get_game_playing):
         _boss = random.choice(BOSS_MONSTER_LIST)
         self.id = _boss['id']
         self.name = _boss['name']
@@ -18,11 +18,11 @@ class BossMonster:
         self.game_end = game_end
         self.monster_hp_gauge = monster_hp_gauge
         self.make_embed = make_embed
-        self.game_playing = game_playing
+        self.get_game_playing = get_game_playing
 
     async def attack_players(self, channel):
         while self.current_hp > 0:  # 보스 몬스터가 살아있는 동안 반복
-            if not self.game_playing:
+            if not self.get_game_playing():
                 return
             players = self.get_alive_players()
             if len(players) == 0:  # 살아있는 플레이어가 없을 경우

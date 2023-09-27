@@ -9,7 +9,7 @@ from constants import EMBED_HUNT
 
 
 class MonsterHunt:
-    def __init__(self, get_alive_players, game_end, monster_hp_gauge, make_embed, game_playing):
+    def __init__(self, get_alive_players, game_end, monster_hp_gauge, make_embed, get_game_playing):
         self.current_monster = None
         self.spawn_count = 0
         self.total_spawns = random.randint(TOTAL_SPAWNS_COUNT_START, TOTAL_SPAWNS_COUNT_END)
@@ -17,7 +17,7 @@ class MonsterHunt:
         self.game_end = game_end
         self.monster_hp_gauge = monster_hp_gauge
         self.make_embed = make_embed
-        self.game_playing = game_playing
+        self.get_game_playing = get_game_playing
 
     async def spawn_monster(self, channel):
         now_in_seconds = time.time()
@@ -39,7 +39,7 @@ class MonsterHunt:
             self.spawn_count += 1
         elif self.spawn_count == self.total_spawns:
             await asyncio.sleep(random.randint(BOSS_SPAWN_DELAY_START, BOSS_SPAWN_DELAY_END))
-            self.current_monster = BossMonster(player_cnt, self.get_alive_players, self.game_end, self.monster_hp_gauge, self.make_embed, self.game_playing)
+            self.current_monster = BossMonster(player_cnt, self.get_alive_players, self.game_end, self.monster_hp_gauge, self.make_embed, self.get_game_playing)
             hp_gauge = self.monster_hp_gauge(self.current_monster.current_hp, self.current_monster.max_hp, 20)
             embed = self.make_embed({
                 'title': f"**__FINAL ROUND__**",

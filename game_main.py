@@ -65,6 +65,11 @@ def get_alive_players():
     return [player for player in participating_players if player.is_alive()]
 
 
+def get_game_playing():
+    global game_playing
+    return game_playing
+
+
 async def game_end(ctx):
     global game_playing
     if game_playing:
@@ -209,7 +214,7 @@ def format_hms(hours, minutes, secs):
 
 
 # 게임 클래스 생성
-game = MonsterHunt(get_alive_players, game_end, monster_hp_gauge, make_embed, game_playing)
+game = MonsterHunt(get_alive_players, game_end, monster_hp_gauge, make_embed, get_game_playing)
 
 
 @bot.command()
