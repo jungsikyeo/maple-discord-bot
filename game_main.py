@@ -26,7 +26,7 @@ bot = commands.Bot(command_prefix=command_flag, intents=discord.Intents.all())
 attack_command = os.getenv("ATTACK_COMMAND")
 skill_command = os.getenv("SKILL_COMMAND")
 defense_command = os.getenv("DEFENSE_COMMAND")
-revival_command = os.getenv("RIVIVAL_COMMAND")
+revival_command = os.getenv("REVIVAL_COMMAND")
 
 team_role_ids = list(map(int, os.getenv('TEAM_ROLE_ID').split(',')))
 mod_role_ids = list(map(int, os.getenv('MOD_ROLE_ID').split(',')))
