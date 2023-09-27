@@ -350,9 +350,9 @@ async def attack(ctx):
                     if not game.current_monster.is_alive():
                         current_player.accumulated_damage += game.current_monster.current_hp  # 마이너스 HP인 경우 누적 데미지 보정
                         game.current_monster.current_hp = 0
-                        await ctx.respond(content=f"**{game.current_monster.name}**이(가) 죽었습니다.", ephemeral=True)
+                        await ctx.respond(content=f"~~**{game.current_monster.name}**~~이(가) 죽었습니다.", ephemeral=True)
                         embed = make_embed({
-                            'description': f"**{ctx.author.name}**가 **{game.current_monster.name}**를 처치했다! \n"
+                            'description': f"**{ctx.author.name}**가 ~~**{game.current_monster.name}**~~(을)를 처치했다! \n"
                                            f"**{ctx.author.name}**의 누적 데미지 **{current_player.accumulated_damage}**",
                             'color': EMBED_HUNT,
                         })
@@ -376,9 +376,9 @@ async def attack(ctx):
                                                       f"HP [{hp_gauge}]({game.current_monster.current_hp}/{game.current_monster.max_hp})",
                                               ephemeral=True)
                 else:
-                    await ctx.respond(content="공격 대상이 없습니다.", ephemeral=True)
+                    await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
             else:
-                await ctx.respond(content="공격 대상이 없습니다.", ephemeral=True)
+                await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
         else:
             await ctx.respond(content=check_result[MSG], ephemeral=True)
     except Exception as e:
@@ -419,7 +419,7 @@ async def skill(ctx):
             if game.current_monster:
                 if game.current_monster.is_alive():
                     if not current_player.use_magic_attack():
-                        await ctx.respond(content="마법 공격 횟수를 모두 사용했습니다.", ephemeral=True)
+                        await ctx.respond(content=":x: 마법 공격 횟수를 모두 사용했습니다.", ephemeral=True)
                         return
                     chosen_skill = random.choice(magic_skills)
                     damage, critical_msg = chosen_skill.compute_damage()
@@ -430,10 +430,10 @@ async def skill(ctx):
                     if not game.current_monster.is_alive():
                         current_player.accumulated_damage += game.current_monster.current_hp  # 마이너스 HP인 경우 누적 데미지 보정
                         game.current_monster.current_hp = 0
-                        await ctx.respond(content=f"**{game.current_monster.name}**이(가) 죽었습니다.",
+                        await ctx.respond(content=f"~~**{game.current_monster.name}**~~이(가) 죽었습니다.",
                                           ephemeral=True)
                         embed = make_embed({
-                            'description': f"**{ctx.author.name}**이(가) **{game.current_monster.name}**를 처치했다! \n"
+                            'description': f"**{ctx.author.name}**이(가) ~~**{game.current_monster.name}**~~를 처치했다! \n"
                                            f"**{ctx.author.name}**의 누적 데미지 **{current_player.accumulated_damage}**",
                             'color': EMBED_HUNT,
                         })
@@ -457,9 +457,9 @@ async def skill(ctx):
                                               ephemeral=True
                                               )
                 else:
-                    await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
+                    await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
             else:
-                await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
+                await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
         else:
             await ctx.respond(content=check_result[MSG], ephemeral=True)
     except Exception as e:
@@ -504,11 +504,11 @@ async def defense(ctx):
                         await ctx.respond(content=f"<:defense_1:1155844018639482950> | **{ctx.author.name}**님은 방어 태세를 취합니다.",
                                           ephemeral=True)
                     else:
-                        await ctx.respond(content=":X: 일반 몬스터에게는 사냥에는 사용할 수 없습니다.", ephemeral=True)
+                        await ctx.respond(content=":x: 일반 몬스터에게는 사냥에는 사용할 수 없습니다.", ephemeral=True)
                 else:
-                    await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
+                    await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
             else:
-                await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
+                await ctx.respond(content=":x: 공격 대상이 없습니다.", ephemeral=True)
         else:
             await ctx.respond(content=check_result[MSG], ephemeral=True)
     except Exception as e:
@@ -529,22 +529,22 @@ async def revival(ctx):
         if _player.id == ctx.author.id:
             player = _player
             if player.is_alive():
-                await ctx.respond(content=":X:사망 상태가 아닙니다.", ephemeral=True)
+                await ctx.respond(content=":x: 사망 상태가 아닙니다.", ephemeral=True)
                 return
             elif player.can_revive():
                 player.revive()
                 embed = make_embed({
-                    'description': f"{ctx.author.name}님이 부활하였습니다!",
+                    'description': f"<:join_2:1155149041026486362> | {ctx.author.name}님이 부활하였습니다!",
                     'color': EMBED_HUNT,
                 })
                 await ctx.respond(embed=embed)
                 return
             else:
-                await ctx.respond(content=":X:아직 부활할 수 없습니다. 부활 딜레이는 5초입니다.", ephemeral=True)
+                await ctx.respond(content=":x: 아직 부활할 수 없습니다. 부활 딜레이는 5초입니다.", ephemeral=True)
                 return
 
     if not player:
-        await ctx.respond(content=":X:게임에 참여하지 않은 사용자입니다.", ephemeral=True)
+        await ctx.respond(content=":x: 게임에 참여하지 않은 사용자입니다.", ephemeral=True)
 
 
 @bot.event

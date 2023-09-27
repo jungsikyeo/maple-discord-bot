@@ -22,8 +22,6 @@ class BossMonster:
 
     async def attack_players(self, channel):
         while self.current_hp > 0:  # 보스 몬스터가 살아있는 동안 반복
-            if not self.get_game_playing():
-                return
             players = self.get_alive_players()
             if len(players) == 0:  # 살아있는 플레이어가 없을 경우
                 embed = self.make_embed({
@@ -36,6 +34,8 @@ class BossMonster:
                 return
             else:
                 await asyncio.sleep(random.randint(BOSS_ATTACK_DELAY_START, BOSS_ATTACK_DELAY_END))  # 공격 대기
+            if not self.get_game_playing():
+                return
             attack_type = random.choices(
                 [BOSS_ATTACK_NORMAL, BOSS_ATTACK_AOE],
                 weights=[BOSS_ATTACK_PERCENT_NORMAL, BOSS_ATTACK_PERCENT_AOE],
@@ -67,7 +67,7 @@ class BossMonster:
                 description += f"<:defense_1:1155844018639482950> | **{target.name}**은(는) **{self.name}**의 **{normal_attack}**을(를) 회피하였습니다."
                 target.defense_mode = False
             else:
-                description += f"<:attack_2:1155149012501020692> | **{self.name}**이(가) **{target.name}**에게 ~~**{normal_attack}**~~을(를) 시전하여 사망시켰습니다."
+                description += f"<:attack_2:1155149012501020692> | **{self.name}**이(가) ~~**{target.name}**~~에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
                 target.die()
             embed = self.make_embed({
                 'description': description,
@@ -81,10 +81,10 @@ class BossMonster:
             target_die_names = ""
             for target in targets:
                 if target.defense_mode:
-                    target_alive_names += f"{target.name}, "
+                    target_alive_names += f"**{target.name}**, "
                     target.defense_mode = False
                 else:
-                    target_die_names += f"{target.name}, "
+                    target_die_names += f"~~**{target.name}**~~, "
                     target.die()
             description = f"<:skill_2:1155149046923661433> | **{self.name}**이(가) 광역 스킬 **{magic_attack}**을 시전합니다.\n"
             if target_die_names:
