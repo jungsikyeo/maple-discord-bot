@@ -363,7 +363,7 @@ async def attack(ctx):
                             await game.spawn_monster(ctx.channel)
                     else:
                         if current_player.defense_mode:
-                            await ctx.respond(content="방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
+                            await ctx.respond(content="<:defense_1:1155844018639482950> -> <:attack_1:1155149010550657124> | 방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
                             current_player.defense_mode = False
                         if isinstance(game.current_monster, BossMonster):
                             hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp, 20)
@@ -444,7 +444,7 @@ async def skill(ctx):
                             await game.spawn_monster(ctx.channel)
                     else:
                         if current_player.defense_mode:
-                            await ctx.respond(content="방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
+                            await ctx.respond(content="<:defense_1:1155844018639482950> -> <:attack_1:1155149010550657124> | 방어 태세에서 공격 태세로 전환합니다.", ephemeral=True)
                         if isinstance(game.current_monster, BossMonster):
                             hp_gauge = monster_hp_gauge(game.current_monster.current_hp, game.current_monster.max_hp, 20)
                             await ctx.respond(content=f"<:skill_4:1155149051759710261> | {critical_msg} **{ctx.author.name}**가 **{chosen_skill.name}** 마법으로 **{game.current_monster.name}**에게 공격 성공! \n"
@@ -457,9 +457,9 @@ async def skill(ctx):
                                               ephemeral=True
                                               )
                 else:
-                    await ctx.respond(content="공격 대상이 없습니다.", ephemeral=True)
+                    await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
             else:
-                await ctx.respond(content="공격 대상이 없습니다.", ephemeral=True)
+                await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
         else:
             await ctx.respond(content=check_result[MSG], ephemeral=True)
     except Exception as e:
@@ -501,14 +501,14 @@ async def defense(ctx):
                 if game.current_monster.is_alive():
                     if isinstance(game.current_monster, BossMonster):
                         current_player.defense_mode = True
-                        await ctx.respond(content=f"**{ctx.author.name}**님은 방어 태세를 취합니다.",
+                        await ctx.respond(content=f"<:defense_1:1155844018639482950> | **{ctx.author.name}**님은 방어 태세를 취합니다.",
                                           ephemeral=True)
                     else:
-                        await ctx.respond(content="일반 몬스터에게는 사냥에는 사용할 수 없습니다.", ephemeral=True)
+                        await ctx.respond(content=":X: 일반 몬스터에게는 사냥에는 사용할 수 없습니다.", ephemeral=True)
                 else:
-                    await ctx.respond(content="몬스터가 없습니다.", ephemeral=True)
+                    await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
             else:
-                await ctx.respond(content="몬스터가 없습니다.", ephemeral=True)
+                await ctx.respond(content=":X: 공격 대상이 없습니다.", ephemeral=True)
         else:
             await ctx.respond(content=check_result[MSG], ephemeral=True)
     except Exception as e:
@@ -529,7 +529,7 @@ async def revival(ctx):
         if _player.id == ctx.author.id:
             player = _player
             if player.is_alive():
-                await ctx.respond(content="사망 상태가 아닙니다.", ephemeral=True)
+                await ctx.respond(content=":X:사망 상태가 아닙니다.", ephemeral=True)
                 return
             elif player.can_revive():
                 player.revive()
@@ -540,11 +540,11 @@ async def revival(ctx):
                 await ctx.respond(embed=embed)
                 return
             else:
-                await ctx.respond(content="아직 부활할 수 없습니다. 부활 딜레이는 5초입니다.", ephemeral=True)
+                await ctx.respond(content=":X:아직 부활할 수 없습니다. 부활 딜레이는 5초입니다.", ephemeral=True)
                 return
 
     if not player:
-        await ctx.respond(content="게임에 참여하지 않은 사용자입니다.", ephemeral=True)
+        await ctx.respond(content=":X:게임에 참여하지 않은 사용자입니다.", ephemeral=True)
 
 
 @bot.event
