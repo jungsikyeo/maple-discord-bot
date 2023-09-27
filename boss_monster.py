@@ -6,7 +6,7 @@ from constants import EMBED_HUNT
 
 
 class BossMonster:
-    def __init__(self, player_cnt, get_alive_players, game_end, monster_hp_gauge, make_embed):
+    def __init__(self, player_cnt, get_alive_players, game_end, monster_hp_gauge, make_embed, game_playing):
         _boss = random.choice(BOSS_MONSTER_LIST)
         self.id = _boss['id']
         self.name = _boss['name']
@@ -18,9 +18,12 @@ class BossMonster:
         self.game_end = game_end
         self.monster_hp_gauge = monster_hp_gauge
         self.make_embed = make_embed
+        self.game_playing = game_playing
 
     async def attack_players(self, channel):
         while self.current_hp > 0:  # 보스 몬스터가 살아있는 동안 반복
+            if not self.game_playing:
+                return
             players = self.get_alive_players()
             if len(players) == 0:  # 살아있는 플레이어가 없을 경우
                 embed = self.make_embed({
@@ -65,7 +68,7 @@ class BossMonster:
                 target.defense_mode = False
             else:
                 description += f"<:attack_2:1155149012501020692> | **{self.name}**이(가) **{target.name}**에게 **{normal_attack}**을(를) 시전하여 사망시켰습니다."
-                target.hp = 0  # 플레이어 사망
+                target.die()
             embed = self.make_embed({
                 'description': description,
                 'color': EMBED_HUNT,
@@ -82,7 +85,7 @@ class BossMonster:
                     target.defense_mode = False
                 else:
                     target_die_names += f"{target.name}, "
-                    target.hp = 0  # 플레이어 사망
+                    target.die()
             description = f"<:skill_2:1155149046923661433> | **{self.name}**이(가) 광역 스킬 **{magic_attack}**을 시전합니다.\n"
             if target_die_names:
                 description += f"<:attack_2:1155149012501020692> | **{self.name}**의 **{magic_attack}** 광역 공격으로 {target_die_names[:-2]}이(가) 사망하였습니다.\n"
@@ -94,7 +97,6 @@ class BossMonster:
                 'color': EMBED_HUNT,
             })
             await channel.send(embed=embed)
-
 
     def is_alive(self):
         return self.current_hp > 0

@@ -3,7 +3,7 @@ import os
 import asyncio
 import random
 import time
-from constants import STATUS, MSG
+from constants import STATUS, MSG, GAME_TIME
 from constants import PLAYER_DIE, PLAYER_ALIVE, PLAYER_NOT_PLAYER
 from constants import JOIN_TIMEOUT, TOTAL_SPAWNS_COUNT_START, TOTAL_SPAWNS_COUNT_END
 from constants import ATTACK_DAMAGE_START, ATTACK_DAMAGE_END
@@ -26,12 +26,17 @@ bot = commands.Bot(command_prefix=command_flag, intents=discord.Intents.all())
 attack_command = os.getenv("ATTACK_COMMAND")
 skill_command = os.getenv("SKILL_COMMAND")
 defense_command = os.getenv("DEFENSE_COMMAND")
-guild_ids = [1069466891367751691]
+revival_command = os.getenv("RIVIVAL_COMMAND")
+
+team_role_ids = list(map(int, os.getenv('TEAM_ROLE_ID').split(',')))
+mod_role_ids = list(map(int, os.getenv('MOD_ROLE_ID').split(',')))
+guild_ids = list(map(int, os.getenv('GUILD_ID').split(',')))
 magic_skills = [fireball, icebolt, lightning, earthquake, windblade]
 
+game_timer = None  # 게임 진행시간
+game_playing = False  # 게임 진행중 여부
 participating_players = set()  # 참여하는 플레이어들의 집합
 monster_spawn_count = 0  # 일반몬스터 개체 수
-game_playing = False  # 게임 진행중 여부
 last_attack_time = {}  # 각 사용자의 마지막 공격 시간을 저장하는 딕셔너리
 user_damage_accumulation = {}  # 각 사용자의 누적 데미지를 저장하는 딕셔너리
 
@@ -70,6 +75,18 @@ async def game_end(ctx):
         })
         await ctx.send(embed=embed)
         await reset()
+
+
+async def end_game_timer(ctx):
+    await asyncio.sleep(GAME_TIME)
+    if game_playing:
+        embed = make_embed({
+            'title': '보스 공략 실패',
+            'description': "제한시간이 초과되었습니다. 보스 공략에 실패했습니다.",
+            'color': EMBED_HUNT,
+        })
+        await ctx.send(embed=embed)
+        await game_end(ctx)
 
 
 def monster_hp_gauge(current_hp, max_hp, hp_gauge_cnt=10):
@@ -145,9 +162,10 @@ class JoinGameView(View):
 
 
 async def reset():
-    global game_playing, participating_players, monster_spawn_count, last_attack_time, user_damage_accumulation
+    global game_timer, game_playing, participating_players, monster_spawn_count, last_attack_time, user_damage_accumulation
     participating_players.clear()
     monster_spawn_count = 0
+    game_timer = None
     game_playing = False
     last_attack_time.clear()
     user_damage_accumulation.clear()
@@ -191,7 +209,7 @@ def format_hms(hours, minutes, secs):
 
 
 # 게임 클래스 생성
-game = MonsterHunt(get_alive_players, game_end, monster_hp_gauge, make_embed)
+game = MonsterHunt(get_alive_players, game_end, monster_hp_gauge, make_embed, game_playing)
 
 
 @bot.command()
@@ -200,8 +218,17 @@ async def mudstart(ctx):
         now_in_seconds = time.time()
         now_in_milliseconds = int(now_in_seconds * 1000)
 
-        if True:  # 사용자가 관리자 권한을 가지고 있는지 확인
-            global game_playing, participating_players, game
+        permission = False
+        for member_role in ctx.author.roles:
+            for team_role in team_role_ids:
+                if int(member_role.id) == int(team_role):
+                    permission = True
+            for mod_role in mod_role_ids:
+                if int(member_role.id) == int(mod_role):
+                    permission = True
+
+        if permission:  # 사용자가 관리자 권한을 가지고 있는지 확인
+            global game_timer, game_playing, participating_players, game
 
             participating_players.clear()
 
@@ -241,6 +268,9 @@ async def mudstart(ctx):
 
             if len(participating_players) > 0:
                 game_playing = True
+                if game_timer:
+                    game_timer.cancel()
+                game_timer = asyncio.get_event_loop().create_task(end_game_timer(ctx))
             else:
                 game_playing = False
                 embed = make_embed({
@@ -397,9 +427,12 @@ async def skill(ctx):
                         game.current_monster.current_hp = 0
                         await ctx.respond(content=f"**{game.current_monster.name}**이(가) 죽었습니다.",
                                           ephemeral=True)
-                        await ctx.respond(
-                            content=f"**{ctx.author.name}**이(가) **{game.current_monster.name}**를 처치했다! \n"
-                                    f"**{ctx.author.name}**의 누적 데미지 **{current_player.accumulated_damage}**")
+                        embed = make_embed({
+                            'description': f"**{ctx.author.name}**이(가) **{game.current_monster.name}**를 처치했다! \n"
+                                           f"**{ctx.author.name}**의 누적 데미지 **{current_player.accumulated_damage}**",
+                            'color': EMBED_HUNT,
+                        })
+                        await ctx.respond(embed=embed)
                         if isinstance(game.current_monster, BossMonster):
                             await game_end(ctx)
                         else:
@@ -471,6 +504,37 @@ async def defense(ctx):
     except Exception as e:
         print(e)
         await stop(ctx)
+
+
+@bot.slash_command(
+    name=revival_command,
+    description="Player - Revival",
+    guild_ids=guild_ids
+)
+async def revival(ctx):
+    global participating_players
+
+    player = None
+    for _player in participating_players:
+        if _player.id == ctx.author.id:
+            player = _player
+            if player.is_alive():
+                await ctx.respond(content="사망 상태가 아닙니다.", ephemeral=True)
+                return
+            elif player.can_revive():
+                player.revive()
+                embed = make_embed({
+                    'description': f"{ctx.author.name}님이 부활하였습니다!",
+                    'color': EMBED_HUNT,
+                })
+                await ctx.respond(embed=embed)
+                return
+            else:
+                await ctx.respond(content="아직 부활할 수 없습니다. 부활 딜레이는 5초입니다.", ephemeral=True)
+                return
+
+    if not player:
+        await ctx.respond(content="게임에 참여하지 않은 사용자입니다.", ephemeral=True)
 
 
 @bot.event
